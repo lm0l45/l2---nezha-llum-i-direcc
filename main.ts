@@ -1,22 +1,39 @@
-input.onButtonPressed(Button.A, function () {
-    PlanetX_Display.ledBrightness(PlanetX_Display.DigitalRJPin.J4, true)
-    PlanetX_Display.ledBrightness(PlanetX_Display.DigitalRJPin.J3, false)
-})
-input.onButtonPressed(Button.B, function () {
-    PlanetX_Display.ledBrightness(PlanetX_Display.DigitalRJPin.J4, false)
-    PlanetX_Display.ledBrightness(PlanetX_Display.DigitalRJPin.J3, true)
-})
-let velocitat = 0
-basic.showIcon(IconNames.SmallDiamond)
+function Endavant () {
+    basic.showArrow(ArrowNames.North)
+    neZha.setMotorSpeed(neZha.MotorList.M1, -100)
+    neZha.setMotorSpeed(neZha.MotorList.M4, -100)
+}
+function Esquerra () {
+    basic.showArrow(ArrowNames.West)
+    neZha.setMotorSpeed(neZha.MotorList.M1, -60)
+    neZha.setMotorSpeed(neZha.MotorList.M4, -100)
+}
+function Dreta () {
+    basic.showArrow(ArrowNames.East)
+    neZha.setMotorSpeed(neZha.MotorList.M1, -100)
+    neZha.setMotorSpeed(neZha.MotorList.M4, -60)
+}
+basic.showIcon(IconNames.Diamond)
+basic.pause(1000)
 basic.forever(function () {
-    velocitat = Math.map(PlanetX_Basic.trimpot(PlanetX_Basic.AnalogRJPin.J2), 0, 1023, 0, 100)
-    serial.writeValue("velocitat", velocitat)
-    neZha.setMotorSpeed(neZha.MotorList.M1, -1 * velocitat)
-    neZha.setMotorSpeed(neZha.MotorList.M4, -1 * velocitat)
+    serial.writeValue("direcció", PlanetX_Basic.trimpot(PlanetX_Basic.AnalogRJPin.J2))
     serial.writeValue("llum", input.lightLevel())
+})
+basic.forever(function () {
     if (input.lightLevel() > 200) {
-        basic.showIcon(IconNames.Chessboard)
+        PlanetX_Display.ledBrightness(PlanetX_Display.DigitalRJPin.J4, true)
+        PlanetX_Display.ledBrightness(PlanetX_Display.DigitalRJPin.J3, false)
+        if (PlanetX_Basic.trimpot(PlanetX_Basic.AnalogRJPin.J2) < 341) {
+            Esquerra()
+        } else if (PlanetX_Basic.trimpot(PlanetX_Basic.AnalogRJPin.J2) > 682) {
+            Dreta()
+        } else {
+            Endavant()
+        }
     } else {
         basic.showIcon(IconNames.SmallDiamond)
+        neZha.stopAllMotor()
+        PlanetX_Display.ledBrightness(PlanetX_Display.DigitalRJPin.J4, false)
+        PlanetX_Display.ledBrightness(PlanetX_Display.DigitalRJPin.J3, true)
     }
 })
